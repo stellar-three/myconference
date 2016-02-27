@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html ng-app="myConference" lang="en">
+<head>
+  <title>myConference</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+   <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular-animate.js"></script>
+    <script src="http://angular-ui.github.io/bootstrap/ui-bootstrap-tpls-1.2.0.js"></script>
+    <link href="http://netdna.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+
+ <!--    <script src="js/angular-1.5.0.js"></script>
+    <script src="js/angular-animate-1.5.0.js"></script>
+    <script src="js/ui-bootstrap-tpls-1.2.0.min.js"></script>
+   <link href="css/bootstrap-3.3.6.min.css" rel="stylesheet"> -->
+
+
+	<style>
+  .typeahead .custom-popup-wrapper {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    display: none;
+    background-color: #f9f9f9;
+  }
+
+  .typeahead .custom-popup-wrapper > .message {
+    padding: 10px 20px;
+    border-bottom: 1px solid #ddd;
+    color: #868686;
+  }
+
+  .typeahead .custom-popup-wrapper > .dropdown-menu {
+    position: static;
+    float: none;
+    display: block;
+    min-width: 160px;
+    background-color: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+  }
+</style>
+
+  <script>
+	var app = angular.module( "myConference", ['ui.bootstrap'] );
+	app.controller( "mainController", function($scope, $http) {
+		$scope.search = "";
+	  
+		$scope.selected = undefined;
+		$scope.confs = ['iswc','ismb','bioontologies','aaai'];
+		
+		
+		$scope.getLocation = function(val) {
+			return $http.get('/myconference/api/index.php?action=searchConf&q=' + val , {
+
+			}).then(function(response){
+			  return response.data.results.map(function(item){
+				return item.name;
+			  });
+			});
+		};
+ 
+    });
+  </script>
+</head>
+
+<body>
+	<div class="container-fluid typeahead" ng-controller="mainController">
+
+		<div class="page-header">
+			<h1>myConference</h1>
+		</div>
+
+<!--	
+	<input type="text" ng-model="selected" uib-typeahead="conf for conf in confs | filter:$viewValue | limitTo:8" class="form-control">
+-->
+		
+	 <pre>Model: {{asyncSelected | json}}</pre>
+    <input type="text" ng-model="asyncSelected" uib-typeahead="address for address in getLocation($viewValue)" typeahead-loading="loadingLocations" typeahead-no-results="noResults" class="form-control">
+    <i ng-show="loadingLocations" class="glyphicon glyphicon-refresh"></i>
+    <div ng-show="noResults">
+      <i class="glyphicon glyphicon-remove"></i> No Results
+    </div>
+	
+	
+	</div>
+</body>
+</html>
