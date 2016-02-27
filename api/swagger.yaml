@@ -1,0 +1,197 @@
+swagger: "2.0"
+info:
+  version: "0.0.1"
+  title: "myConference"
+host: 127.0.0.1
+basePath: "/v1"
+produces:  
+  - application/json 
+paths:
+  /user:
+    get:
+      description: Gets a `User` object by its identifier
+      operationId: "getUserById"
+      parameters:
+        - name: "id"
+          in: "query"
+          description: "The user identifier"
+          required: true
+          type: "integer"
+      responses:
+        200:
+          description: "Successful response"
+          schema:
+            $ref: "#/definitions/user"
+      x-swagger-router-controller: "Default"
+      
+  /conference:
+    get:
+      description: "Gets a `Conference` object by its id"
+      operationId: "getConferenceById"
+      parameters:
+      - name: "id"
+        in: "query"
+        description: "The conference identifier"
+        required: true
+        type: "integer"
+      responses:
+        200:
+          description: "Successful response"
+          schema:
+            $ref: "#/definitions/conference"
+      x-swagger-router-controller: "Default"
+  /conferences:
+    get:
+      description: "Gets all the `conference` objects."
+      operationId: "getConferences"
+      parameters:
+      - name: "size"
+        in: "query"
+        description: "Number of `Conference` objects"
+        required: false
+        type: "number"
+        format: "integer"
+      responses:
+        200:
+          description: "Successful response"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/conference"
+      x-swagger-router-controller: "Default"
+  /search:
+    get:
+      description: "Search for conference by partial name"
+      operationId: "searchGET"
+      parameters:
+      - name: "q"
+        in: "query"
+        description: "a search term"
+        required: true
+        type: "string"
+      - name: "size"
+        in: "query"
+        description: "Number of dataset objects"
+        required: false
+        type: "number"
+        format: "integer"
+      responses:
+        200:
+          description: "Successful response"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/conference"
+      x-swagger-router-controller: "Default"
+
+definitions:
+  series:
+    type: "object"
+    properties:
+      series_id:
+        type: "integer"
+      series_name:
+        type: "string"
+      organization:
+        $ref: "#/definitions/organization"
+
+  conference:
+    type: "object"
+    properties:
+      conference_id:
+        type: "string"
+      full_name:
+        type: "string"
+      short_name:
+        type: "string"
+      year:
+        type: "integer"
+      location:
+        type: "string"
+      start_date:
+        type: "string"
+      end_date:
+        type: "string"
+      pre_sub_date:
+        type: "string"
+      camera_date:
+        type: "string"
+      notify_date:
+        type: "string"
+      url:
+        type: "string"
+      description:
+        type: "string"
+      series:
+        $ref: "#/definitions/series"
+      categories:
+        $ref: "#/definitions/categories"
+
+  organization:
+    type: "object"
+    properties:
+      organization_id:
+        type: "integer"
+      name:
+        type: "string"
+      url:
+        type: "string"
+      contact_email:
+        type: "string"
+
+  user:
+    type: "object"
+    properties:
+      user_id:
+        type: "string"
+      email:
+        type: "string"
+      homepage:
+        type: "string"
+      user_id:
+        type: "number"
+      user_name:
+        type: "string"
+      password:
+        type: "string"
+      real_first_name:
+        type: "string"
+      real_last_name: 
+        type: "string"
+      email:
+        type: "string"
+      digest_frequency:
+        $ref: "#/definitions/notice_frequency"
+      global_cfp_notice_id:
+        $ref: "#/definitions/notice_frequency"
+      submiter:
+        type: "integer"
+      airport:
+        type: "string"
+      preferences:
+        type: "array"
+        items:
+          $ref: "#/definitions/category"
+        
+  notice_frequency:
+    type: "object"
+    properties:
+      notice_frequency_id:
+        type: "integer"
+      notice_time_in_days:
+        type: "integer"
+      notice_description:
+        type: "string"
+  categories:
+    type: "array"
+    items:
+      $ref: "#/definitions/category"
+  
+  category:
+    type: "object"
+    properties:
+      category_id:
+        type: "integer"
+      category_description:
+        type: "string"
+        
