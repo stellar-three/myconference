@@ -4,18 +4,12 @@
   <title>myConference</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-   <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular.js"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular-animate.js"></script>
     <script src="http://angular-ui.github.io/bootstrap/ui-bootstrap-tpls-1.2.0.js"></script>
     <link href="http://netdna.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
 
- <!--    <script src="js/angular-1.5.0.js"></script>
-    <script src="js/angular-animate-1.5.0.js"></script>
-    <script src="js/ui-bootstrap-tpls-1.2.0.min.js"></script>
-   <link href="css/bootstrap-3.3.6.min.css" rel="stylesheet"> -->
-
-
-	<style>
+<style>
   .typeahead .custom-popup-wrapper {
     position: absolute;
     top: 100%;
@@ -49,16 +43,20 @@
 		$scope.search = "";
 	  
 		$scope.selected = undefined;
-		$scope.confs = ['iswc','ismb','bioontologies','aaai'];
 		
-		
-		$scope.getLocation = function(val) {
-			return $http.get('/myconference/api/index.php?action=searchConf&q=' + val , {
+		$scope.getSuggestions = function(val) {
+			return $http.get('/api/?q=' + val ).then(function(response) {
+				$scope.selected = response.data.results;
 
-			}).then(function(response){
-			  return response.data.results.map(function(item){
-				return item.name;
-			  });
+				return response.data.results.map(function(item){
+					return item.short_name;
+			  	});
+			});
+		};
+
+		$scope.getConfDetails = function(id) {
+			return $http.get('/api/conference?id='+ id).then(function(response) {
+				$scope.selected = response.data.results;
 			});
 		};
  
@@ -67,24 +65,30 @@
 </head>
 
 <body>
-	<div class="container-fluid typeahead" ng-controller="mainController">
+	<div class="container typeahead" ng-controller="mainController">
 
 		<div class="page-header">
 			<h1>myConference</h1>
+			<!-- <span class="">conferences made easy</span> -->
 		</div>
 
-<!--	
-	<input type="text" ng-model="selected" uib-typeahead="conf for conf in confs | filter:$viewValue | limitTo:8" class="form-control">
--->
+ 		<input type="text" ng-model="asyncSelected" ng-model-options="{ debounce: 200 }"
+			uib-typeahead="suggestion for suggestion in getSuggestions($viewValue)" 
+			typeahead-loading="loadingSuggestions" typeahead-no-results="noResults" 
+			class="form-control">
 		
-	 <pre>Model: {{asyncSelected | json}}</pre>
-    <input type="text" ng-model="asyncSelected" uib-typeahead="address for address in getLocation($viewValue)" typeahead-loading="loadingLocations" typeahead-no-results="noResults" class="form-control">
-    <i ng-show="loadingLocations" class="glyphicon glyphicon-refresh"></i>
-    <div ng-show="noResults">
-      <i class="glyphicon glyphicon-remove"></i> No Results
-    </div>
-	
-	
+		<i ng-show="loadingSuggestions" class="glyphicon glyphicon-refresh"></i>
+		<div ng-show="noResults"><i class="glyphicon glyphicon-remove"></i>No Results</div>
+
+
+		
+		<div ng-repeat="item in selected | filter : asyncSelected">
+			{{item.short_name}}
+			{{item.full_name}}
+
+		</div>
+		<pre>{{ selected | filter : asyncSelected | json }}</pre>
+
 	</div>
 </body>
 </html>
