@@ -30,9 +30,9 @@ $app->GET('/', function(Application $app, Request $request) {
 	if ($result->num_rows > 0 ) {
 		$a = null;
 		while ($r = $result->fetch_assoc()) {
-			$a['conference_year_id'] = $r['conference_year_id'];
-			$a['full_name']  = $r['full_name'];
-			$a['short_name'] = $r['short_name'];
+                        foreach($r AS $k => $v) {
+                                $a[$k] = $v;
+                        }
 			array_push($list,$a);
 		}
 		$response['status'] = "OK";
