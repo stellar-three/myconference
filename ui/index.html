@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular.js"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular-animate.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular-sanitize.js"></script>
     <script src="http://angular-ui.github.io/bootstrap/ui-bootstrap-tpls-1.2.0.js"></script>
     <link href="http://netdna.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
 
@@ -38,7 +39,7 @@
 </style>
 
   <script>
-	var app = angular.module( "myConference", ['ui.bootstrap'] );
+	var app = angular.module( "myConference", ['ui.bootstrap','ngSanitize'] );
 	app.controller( "mainController", function($scope, $http) {
 		$scope.search = "";
 	  
@@ -59,8 +60,17 @@
 				$scope.selected = response.data.results;
 			});
 		};
+
+	});
+	
+	app.filter('nl2br', function($sce) {
+		return function(text) { 
+			text = text.replace(/\\r/g, '<br />');
+			return $sce.trustAsHtml(text);
+		}
+	});
  
-    });
+
   </script>
 </head>
 
@@ -79,14 +89,34 @@
 		
 		<i ng-show="loadingSuggestions" class="glyphicon glyphicon-refresh"></i>
 		<div ng-show="noResults"><i class="glyphicon glyphicon-remove"></i>No Results</div>
-
-
 		
-		<div ng-repeat="item in selected | filter : asyncSelected">
-			{{item.short_name}}
-			{{item.full_name}}
-
-		</div>
+		<ul>
+		<li class="" ng-repeat="item in selected | filter : asyncSelected">
+			{{item.full_name}} [{{item.short_name}}] <br>
+			dates: {{item.start_date | date:"dd MMM yyyy"}} - {{item.end_date | date:"dd MMM yyyy"}}<br>
+			location: {{item.location}}<br>
+			<span ng-if="item.url != ''">website: <a href="{{item.url}}">{{item.url}}</a><br></span>
+			<br>
+			<span ng-if="item.pre_sub_date != '0000-00-00'">
+				Abstract Deadline: {{item.pre_sub_date| date:"dd MMM yyyy"}}<br>
+			</span>
+			<span ng-if="item.sub_date != '0000-00-00'">
+			Submission Deadline: {{item.sub_date | date:"dd MMM yyyy"}}<br>
+			</span>
+			<span ng-if="item.notify_date != '0000-00-00'">
+			Notification Date: {{item.notify_date | date:"dd MMM yyyy"}}<br>
+			</span>
+			<span ng-if="item.camera_date != '0000-00-00'">
+			Camera Ready Date: {{item.camera_date | date:"dd MMM yyyy"}}<br>
+			</span>
+			<br>
+			<div><a href="#" ng-click='showDescription =! showDescription'>details</a></div>		
+			<div ng-show="showDescription">
+				<hr>
+				<span ng-bind-html="item.description | nl2br"></span> 
+			</div>
+		</li>
+		</ul>
 		<pre>{{ selected | filter : asyncSelected | json }}</pre>
 
 	</div>
